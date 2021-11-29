@@ -23,8 +23,8 @@ class Post(mongo_db.Document):
     title = mongo_db.StringField(max_length=120, required=True)
     content = mongo_db.StringField()
     author_id = mongo_db.IntField()
-    create_date = mongo_db.DateTimeField()
-    modify_date = mongo_db.DateTimeField()
+    created_at = mongo_db.DateTimeField()
+    modified_at = mongo_db.DateTimeField()
     category = mongo_db.StringField(max_length=30)
     comment = mongo_db.ListField(mongo_db.EmbeddedDocumentField(Comment))
 
