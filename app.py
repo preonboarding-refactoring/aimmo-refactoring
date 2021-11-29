@@ -7,20 +7,30 @@ from flask_migrate import Migrate
 import pymongo
 import config
 
+sqlite_db = SQLAlchemy()
 
 connection = pymongo.MongoClient()
-slqite_address = 'sqlite:////test.db'
+sqlite_address = 'sqlite:///test.db'
 migrate = Migrate()
 
-app = Flask(__name__)
-app.config.from_object(config)
-app.config['SQLALCHEMY_DATABASE_URI'] = slqite_address
-sqlite_db = SQLAlchemy(app)
-sqlite_db.init_app(app)
-migrate.init_app(app,sqlite_db)
-jwt = JWTManager(app)
+def create_app():
 
-test1 = connection.test
+    app = Flask(__name__)
+    app.config.from_object(config)
+    app.config['SQLALCHEMY_DATABASE_URI'] = sqlite_address
+
+    sqlite_db.init_app(app)
+    migrate.init_app(app, sqlite_db)
+    jwt = JWTManager(app)
+    import models
+
+    from views import  auth_view
+    app.register_blueprint(auth_view.bp)
+
+    test1 = connection.test
+    return app
+
+app =create_app()
 
 
 @app.route("/", methods=["GET"])
