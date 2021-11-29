@@ -1,7 +1,18 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load
 
-class Post(Schema):
+class PostDTO:
+    def __init__(self, title, content,category):
+        self.title = title
+        self.content = content
+        self.category = category
+
+
+class PostSchema(Schema):
     title = fields.String()
-    content =fields.String()
-    category =fields.String()
+    content = fields.String()
+    category = fields.String()
     author = fields.Integer()
+
+    @post_load
+    def make_post(self, data, **kwargs):
+        return PostDTO(**data)
