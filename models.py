@@ -30,4 +30,4 @@ class Post(mongo_db.Document):
 
 
 class Views(mongo_db.Document):
-    post = mongo_db.ReferenceField(Post)
+    post_id = mongo_db.StringField()
