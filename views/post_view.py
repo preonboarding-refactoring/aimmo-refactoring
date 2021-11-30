@@ -6,9 +6,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_apispec import use_kwargs, marshal_with
 from services import post_service
 from webargs.flaskparser import use_args
+from marshmallow import fields
 from schema import PostSchema, PostList, PostResponseSchema
 from dto import PostDTO
-import models
+
 
 bp = Blueprint('post', __name__, url_prefix='/posts')
 
@@ -44,3 +45,16 @@ def delete_post(post_id):
     if post_service.delete_post_if_user_authorized(post_id, current_user_id):
         return make_response('', 204)
     return make_response(jsonify(msg="권한이 없습니다. 해당 글을 쓰신 유저가 맞는지 확인해주세요.", status_code=401), 401)
+
+
+@bp.route('/<post_id>', methods=['PUT', 'PATCH'])
+@use_kwargs({"post_id": fields.Str()}, location="query")
+@use_args(PostSchema(partial=("author")))
+def update_post( modify_post: PostDTO, post_id):
+    current_user_id = 1
+    modify_post.author_id = current_user_id
+    modify_post.id = post_id
+    print(modify_post.__dict__)
+    if post_service.update_post(modify_post):
+        return make_response(jsonify(msg='update_success', status_code=200, id=str(post_id)), 200)
+    return make_response(jsonify(msg="권한이 없습니다. 해당 글을 쓰신 유저가 맞는지 확인해주세요", status_code=401), 401)

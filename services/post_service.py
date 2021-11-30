@@ -32,3 +32,7 @@ def count_hit_post(id, request):
 
 def delete_post_if_user_authorized(id, current_user_id):
     return post_repository.delete_post(id, current_user_id)
+
+def update_post(modify_post):
+    modify_post.modified_at = datetime.now()
+    return post_repository.update_post(modify_post)

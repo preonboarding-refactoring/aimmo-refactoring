@@ -33,3 +33,11 @@ def delete_post(id, current_user_id):
         post.delete()
         return True
     return False
+
+
+def update_post(modify_post):
+    post = Post.objects.get_or_404(id=modify_post.id)
+    if post.author_id == modify_post.author_id:
+        post.update(**modify_post.__dict__)
+        return True
+    return False
