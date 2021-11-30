@@ -16,3 +16,12 @@ class PostSchema(Schema):
     @post_load
     def make_post(self, data, **kwargs):
         return PostDTO(**data)
+
+
+
+class PostList(Schema):
+   page = fields.Integer()
+   per_page = fields.Integer()
+   total = fields.Integer()
+   items = fields.List(fields.Nested(PostSchema))
+
