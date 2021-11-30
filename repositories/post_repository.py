@@ -25,3 +25,11 @@ def read_post_detail(id):
 
 def hit_post(id):
     Views(post_id=id).save()
+
+
+def delete_post(id, current_user_id):
+    post = Post.objects.get_or_404(id=id)
+    if post.author_id == current_user_id:
+        post.delete()
+        return True
+    return False

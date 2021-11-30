@@ -28,3 +28,7 @@ def count_hit_post(id, request):
         post_repository.hit_post(id)
         cookie_value += f'{id}_'
     return cookie_value, max_age
+
+
+def delete_post_if_user_authorized(id, current_user_id):
+    return post_repository.delete_post(id, current_user_id)

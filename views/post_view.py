@@ -36,3 +36,11 @@ def read_detail(post_id):
     response = make_response(post.__dict__)
     response.set_cookie('hitboard', value=cookie_value, max_age=max_age, httponly=True)
     return response
+
+
+@bp.route('/<post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    current_user_id = 1
+    if post_service.delete_post_if_user_authorized(post_id, current_user_id):
+        return make_response('', 204)
+    return make_response(jsonify(msg="권한이 없습니다. 해당 글을 쓰신 유저가 맞는지 확인해주세요.", status_code=401), 401)
