@@ -92,3 +92,8 @@ class CommentSchema(Schema):
 class ReplyCommentPaginationSchema(Schema):
     offset = fields.Integer(missing=1)
     limit = fields.Integer(missing=3)
+
+
+class SearchSchema(Schema):
+    keyword = fields.String()
+    category = fields.String(missing="")

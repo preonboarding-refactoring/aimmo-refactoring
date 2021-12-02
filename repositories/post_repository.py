@@ -16,7 +16,8 @@ def read_post_list(page, category):
 def read_post_detail(id, reply_comment_pagination):
     num_posts = Views.objects(post_id=id).count()
     post = Post.objects.fields(slice__comment__reply_comment=[reply_comment_pagination["offset"],
-                                                              reply_comment_pagination["offset"] + reply_comment_pagination["limit"]]).get_or_404(
+                                                              reply_comment_pagination["offset"] +
+                                                              reply_comment_pagination["limit"]]).get_or_404(
         id=id)
     post_response = PostResponseSchema()
     post_response = post_response.load(post.to_mongo().to_dict())
@@ -61,3 +62,9 @@ def create_parent_comment(comment_dto):
     post.comment.append(comment)
     post.save()
     return post.to_json
+
+
+def search_post(search_info):
+    if not search_info["category"]:
+        return Post.objects(title=search_info["keyword"])
+    return Post.objects(title=search_info["keyword"], category=search_info["category"])

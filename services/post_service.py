@@ -1,5 +1,6 @@
 from repositories import post_repository
 from datetime import datetime,timedelta
+import re
 
 def create_post(post ):
     post.created_at = datetime.now()
@@ -45,3 +46,7 @@ def create_comment(comment_dto):
         return post_repository.create_child_comment(comment_dto)
     return post_repository.create_parent_comment(comment_dto)
 
+
+def search_keyword(search_info ):
+    search_info["keyword"] = re.compile('.*' + search_info["keyword"] + '.*')
+    return post_repository.search_post(search_info)

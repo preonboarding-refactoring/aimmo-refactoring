@@ -7,7 +7,7 @@ from flask_apispec import use_kwargs, marshal_with
 from services import post_service
 from webargs.flaskparser import use_args
 from marshmallow import fields
-from schema import PostSchema, PostList, PostResponseSchema, CommentSchema, ReplyCommentPaginationSchema
+from schema import PostSchema, PostList, PostResponseSchema, CommentSchema, ReplyCommentPaginationSchema, SearchSchema
 from dto import PostDTO, CommentDTO
 
 bp = Blueprint('post', __name__, url_prefix='/posts')
@@ -66,3 +66,10 @@ def create_comment(comment_dto: CommentDTO, post_id):
     comment_dto.post_id = post_id
     post_service.create_comment(comment_dto)
     return make_response(jsonify(msg='create_comment_success', status_code=201, id=str(id)), 201)
+
+
+@bp.route('/search', methods=['GET'])
+@use_args(SearchSchema(), location="query")
+def search_post(args):
+    posts = post_service.search_keyword(args).to_json()
+    return make_response(posts, 200)
