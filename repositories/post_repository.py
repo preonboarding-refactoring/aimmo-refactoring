@@ -7,10 +7,10 @@ def create_post(post_dto):
     return str(post_save.id)
 
 
-def read_post_list(page, category):
-    if category:
-        return Post.objects(category=category).paginate(page=page, per_page=10)
-    return Post.objects.paginate(page=page, per_page=10)
+def read_post_list(read_post_list_dto):
+    if read_post_list_dto.category:
+        return Post.objects(category=read_post_list_dto.category).paginate(page=read_post_list_dto.page, per_page=10)
+    return Post.objects.paginate(page=read_post_list_dto.page, per_page=10)
 
 
 def read_post_detail(id, reply_comment_pagination):

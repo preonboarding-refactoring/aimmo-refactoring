@@ -6,14 +6,15 @@ from flask_apispec import use_kwargs, marshal_with
 from services import post_service
 from webargs.flaskparser import use_args
 from marshmallow import fields
-from schema import PostRequestSchema, PostList, PostResponseSchema, CommentRequestSchema, ReplyCommentPaginationSchema, SearchSchema
-from dto import PostDTO, CommentDTO, SearchDTO
+from schema import PostRequestSchema, PostList, PostResponseSchema, CommentRequestSchema, ReplyCommentPaginationSchema, SearchSchema, ReadPostListRequestSchema
+from dto import PostDTO, CommentDTO, SearchDTO, ReadPostListDto
 from flask_apispec import doc
 
 bp = Blueprint('post', __name__, url_prefix='/posts')
 
 
 @bp.route('/create', methods=['POST'])
+@doc(description='글 작성하기', tags=['post'])
 @use_kwargs(PostRequestSchema())
 def create_post(post_dto: PostDTO):
     post_dto.author_id = 1
@@ -21,11 +22,11 @@ def create_post(post_dto: PostDTO):
 
 
 @bp.route('/', methods=['GET'])
+@doc(description='글 리스트 보기', tags=['post'])
+@use_kwargs(ReadPostListRequestSchema(), location="query")
 @marshal_with(PostList)
-def read_post_list():
-    page = request.args.get('page', type=int, default=1)
-    category = request.args.get('category')
-    return post_service.read_post_list(page, category)
+def read_post_list(read_post_list_dto:ReadPostListDto):
+    return post_service.read_post_list(read_post_list_dto)
 
 
 @bp.route('/<post_id>', methods=['GET'])
@@ -40,6 +41,7 @@ def read_detail(args, post_id):
 
 
 @bp.route('/<post_id>', methods=['DELETE'])
+@doc(description='글 삭제하기', tags=['post'])
 def delete_post(post_id):
     current_user_id = 1
     if post_service.delete_post_if_user_authorized(post_id, current_user_id):
@@ -48,12 +50,13 @@ def delete_post(post_id):
 
 
 @bp.route('/<post_id>', methods=['PUT', 'PATCH'])
-@use_args(PostRequestSchema(partial=("author")))
-def update_post(modify_post: PostDTO, post_id):
+@doc(description='글 수정하기', tags=['post'])
+@use_kwargs(PostRequestSchema())
+def update_post(post_dto: PostDTO, post_id):
     current_user_id = 1
-    modify_post.author_id = current_user_id
-    modify_post.id = post_id
-    if post_service.update_post(modify_post):
+    post_dto.author_id = current_user_id
+    post_dto.id = post_id
+    if post_service.update_post(post_dto):
         return make_response(jsonify(msg='update_success', status_code=200, id=str(post_id)), 200)
     return make_response(jsonify(msg="권한이 없습니다. 해당 글을 쓰신 유저가 맞는지 확인해주세요", status_code=401), 401)
 

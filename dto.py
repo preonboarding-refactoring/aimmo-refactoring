@@ -36,3 +36,8 @@ class SearchDTO:
     def __init__(self, keyword, category):
         self.keyword = keyword
         self.category = category
+
+class ReadPostListDto:
+    def __init__(self, page, category):
+        self.page = page
+        self.category = category

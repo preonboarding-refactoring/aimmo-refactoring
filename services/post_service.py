@@ -7,8 +7,8 @@ def create_post(post_dto ):
     return post_repository.create_post(post_dto)
 
 
-def read_post_list(page, category):
-    return post_repository.read_post_list(page, category)
+def read_post_list(read_post_list_dto):
+    return post_repository.read_post_list(read_post_list_dto)
 
 
 def read_post_detail(id, reply_comment_pagination):

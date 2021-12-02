@@ -3,7 +3,7 @@ import bson
 from marshmallow import ValidationError, fields, missing, INCLUDE
 from datetime import datetime
 
-from dto import PostDTO, PostResponseDTO, CommentDTO, SearchDTO
+from dto import PostDTO, PostResponseDTO, CommentDTO, SearchDTO, ReadPostListDto
 
 
 class MyDateTimeField(fields.DateTime):
@@ -97,3 +97,11 @@ class SearchSchema(Schema):
     @post_load
     def make_searchDTO(self, data, **kwargs):
         return SearchDTO(**data)
+
+class ReadPostListRequestSchema(Schema):
+    page = fields.Integer(missing=1)
+    category = fields.String(missing="")
+
+    @post_load
+    def make_read_post_list_dto(self, data, **kwargs):
+        return ReadPostListDto(**data)
