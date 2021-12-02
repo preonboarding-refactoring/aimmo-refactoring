@@ -47,16 +47,16 @@ def update_post(modify_post):
 
 def create_child_comment(comment_dto):
     post_id = comment_dto.post_id
-    OID = comment_dto.OID
+    oid = comment_dto.oid
     del comment_dto.post_id
-    del comment_dto.OID
+    del comment_dto.oid
     child_comment = ReplyComment(**comment_dto.__dict__)
-    Post.objects(id=post_id, comment__oid=OID).update(push__comment__S__reply_comment=child_comment)
+    Post.objects(id=post_id, comment__oid=oid).update(push__comment__S__reply_comment=child_comment)
     return True
 
 
 def create_parent_comment(comment_dto):
-    del comment_dto.OID
+    del comment_dto.oid
     comment = Comment(**comment_dto.__dict__)
     post = Post.objects.get_or_404(id=comment_dto.post_id)
     post.comment.append(comment)
@@ -64,7 +64,7 @@ def create_parent_comment(comment_dto):
     return post.to_json
 
 
-def search_post(search_info):
-    if not search_info["category"]:
-        return Post.objects(title=search_info["keyword"])
-    return Post.objects(title=search_info["keyword"], category=search_info["category"])
+def search_post(search_dto):
+    if not search_dto.category:
+        return Post.objects(title=search_dto.keyword)
+    return Post.objects(title=search_dto.keyword, category=search_dto.category)

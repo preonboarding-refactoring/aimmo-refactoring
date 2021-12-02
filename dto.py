@@ -25,6 +25,12 @@ class CommentDTO:
     created_at: datetime.datetime
     author_id: int
     post_id: str
-    def __init__(self, content, OID):
+    def __init__(self, content, oid):
         self.content = content
-        self.OID = OID
+        self.oid = oid
+
+
+class SearchDTO:
+    def __init__(self, keyword, category):
+        self.keyword = keyword
+        self.category = category

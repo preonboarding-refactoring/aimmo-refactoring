@@ -41,12 +41,11 @@ def update_post(modify_post):
 
 def create_comment(comment_dto):
     comment_dto.created_at = datetime.now()
-    if comment_dto.OID:
-        print(comment_dto.__dict__)
+    if comment_dto.oid:
         return post_repository.create_child_comment(comment_dto)
     return post_repository.create_parent_comment(comment_dto)
 
 
-def search_keyword(search_info ):
-    search_info["keyword"] = re.compile('.*' + search_info["keyword"] + '.*')
-    return post_repository.search_post(search_info)
+def search_keyword(search_dto ):
+    search_dto.keyword = re.compile('.*' + search_dto.keyword + '.*')
+    return post_repository.search_post(search_dto)

@@ -1,14 +1,14 @@
 from flask import Blueprint, make_response, jsonify
 from flask import request, jsonify
 from flask_jwt_extended.utils import get_jwt
-# from service import post_service
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_apispec import use_kwargs, marshal_with
 from services import post_service
 from webargs.flaskparser import use_args
 from marshmallow import fields
-from schema import PostSchema, PostList, PostResponseSchema, CommentSchema, ReplyCommentPaginationSchema, SearchSchema
-from dto import PostDTO, CommentDTO
+from schema import PostSchema, PostList, PostResponseSchema, CommentRequestSchema, ReplyCommentPaginationSchema, SearchSchema
+from dto import PostDTO, CommentDTO, SearchDTO
+from flask_apispec import doc
 
 bp = Blueprint('post', __name__, url_prefix='/posts')
 
@@ -59,7 +59,8 @@ def update_post(modify_post: PostDTO, post_id):
 
 
 @bp.route('/<post_id>/comment', methods=['POST'])
-@use_args(CommentSchema())
+@doc(description='댓글달기', tags=['post'])
+@use_kwargs(CommentRequestSchema())
 def create_comment(comment_dto: CommentDTO, post_id):
     user_id = 1
     comment_dto.author_id = user_id
@@ -69,7 +70,8 @@ def create_comment(comment_dto: CommentDTO, post_id):
 
 
 @bp.route('/search', methods=['GET'])
-@use_args(SearchSchema(), location="query")
-def search_post(args):
-    posts = post_service.search_keyword(args).to_json()
+@doc(description='검색하기', tags=['post'])
+@use_kwargs(SearchSchema(), location="query")
+def search_post(search_dto: SearchDTO):
+    posts = post_service.search_keyword(search_dto).to_json()
     return make_response(posts, 200)

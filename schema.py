@@ -3,7 +3,7 @@ import bson
 from marshmallow import ValidationError, fields, missing, INCLUDE
 from datetime import datetime
 
-from dto import PostDTO, PostResponseDTO, CommentDTO
+from dto import PostDTO, PostResponseDTO, CommentDTO, SearchDTO
 
 
 class MyDateTimeField(fields.DateTime):
@@ -25,11 +25,11 @@ class ObjectId(fields.Field):
             return missing
         return str(value)
 
+
 class ReplyComment(Schema):
     content = fields.String()
     author_id = fields.Integer()
     created_at = MyDateTimeField()
-
 
 
 class Comment(Schema):
@@ -37,7 +37,7 @@ class Comment(Schema):
     category = fields.String()
     author_id = fields.Integer()
     created_at = MyDateTimeField()
-    post_id= fields.String()
+    post_id = fields.String()
     reply_comment = fields.List(fields.Nested(ReplyComment))
     oid = ObjectId()
 
@@ -73,16 +73,13 @@ class PostResponseSchema(Schema):
     def make_post_response(self, data, **kwargs):
         return PostResponseDTO(**data)
 
-
     class Meta:
         unknown = INCLUDE
 
 
-class CommentSchema(Schema):
+class CommentRequestSchema(Schema):
     content = fields.String()
-
-    class Meta:
-        additional = ('OID',)
+    oid = fields.String(missing="")
 
     @post_load
     def make_comment_dto(self, data, **kwargs):
@@ -97,3 +94,7 @@ class ReplyCommentPaginationSchema(Schema):
 class SearchSchema(Schema):
     keyword = fields.String()
     category = fields.String(missing="")
+
+    @post_load
+    def make_searchDTO(self, data, **kwargs):
+        return SearchDTO(**data)
