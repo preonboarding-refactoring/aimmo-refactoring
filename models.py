@@ -1,5 +1,6 @@
 from app import sqlite_db
 from app import mongo_db
+from bson.objectid import ObjectId
 
 
 class User(sqlite_db.Model):
@@ -10,13 +11,17 @@ class User(sqlite_db.Model):
 
 class ReplyComment(mongo_db.EmbeddedDocument):
     content = mongo_db.StringField(required=True)
-    create_date = mongo_db.DateTimeField(required=True)
+    created_at = mongo_db.DateTimeField(required=True)
+    author_id = mongo_db.IntField()
 
 
 class Comment(mongo_db.EmbeddedDocument):
     content = mongo_db.StringField()
-    create_date = mongo_db.DateTimeField(required=True)
+    created_at = mongo_db.DateTimeField(required=True)
     reply_comment = mongo_db.ListField(mongo_db.EmbeddedDocumentField(ReplyComment))
+    post_id =  mongo_db.StringField()
+    author_id = mongo_db.IntField()
+    oid = mongo_db.ObjectIdField(default=ObjectId)
 
 
 class Post(mongo_db.Document):

@@ -10,8 +10,8 @@ def read_post_list(page, category):
     return post_repository.read_post_list(page, category)
 
 
-def read_post_detail(id):
-    post_data = post_repository.read_post_detail(id)
+def read_post_detail(id, reply_comment_pagination):
+    post_data = post_repository.read_post_detail(id, reply_comment_pagination)
     return post_data
 
 
@@ -36,3 +36,12 @@ def delete_post_if_user_authorized(id, current_user_id):
 def update_post(modify_post):
     modify_post.modified_at = datetime.now()
     return post_repository.update_post(modify_post)
+
+
+def create_comment(comment_dto):
+    comment_dto.created_at = datetime.now()
+    if comment_dto.OID:
+        print(comment_dto.__dict__)
+        return post_repository.create_child_comment(comment_dto)
+    return post_repository.create_parent_comment(comment_dto)
+

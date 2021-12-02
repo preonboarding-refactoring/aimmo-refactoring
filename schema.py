@@ -1,9 +1,9 @@
 from marshmallow import Schema, post_load
 import bson
-from marshmallow import ValidationError, fields, missing
+from marshmallow import ValidationError, fields, missing, INCLUDE
 from datetime import datetime
 
-from dto import PostDTO, PostResponseDTO
+from dto import PostDTO, PostResponseDTO, CommentDTO
 
 
 class MyDateTimeField(fields.DateTime):
@@ -24,6 +24,22 @@ class ObjectId(fields.Field):
         if value is None:
             return missing
         return str(value)
+
+class ReplyComment(Schema):
+    content = fields.String()
+    author_id = fields.Integer()
+    created_at = MyDateTimeField()
+
+
+
+class Comment(Schema):
+    content = fields.String()
+    category = fields.String()
+    author_id = fields.Integer()
+    created_at = MyDateTimeField()
+    post_id= fields.String()
+    reply_comment = fields.List(fields.Nested(ReplyComment))
+    oid = ObjectId()
 
 
 class PostSchema(Schema):
@@ -51,8 +67,28 @@ class PostResponseSchema(Schema):
     author_id = fields.Integer()
     _id = ObjectId()
     created_at = MyDateTimeField()
-    comment = fields.List(fields.String)
+    comment = fields.List(fields.Nested(Comment))
 
     @post_load
     def make_post_response(self, data, **kwargs):
         return PostResponseDTO(**data)
+
+
+    class Meta:
+        unknown = INCLUDE
+
+
+class CommentSchema(Schema):
+    content = fields.String()
+
+    class Meta:
+        additional = ('OID',)
+
+    @post_load
+    def make_comment_dto(self, data, **kwargs):
+        return CommentDTO(**data)
+
+
+class ReplyCommentPaginationSchema(Schema):
+    offset = fields.Integer(missing=1)
+    limit = fields.Integer(missing=3)
