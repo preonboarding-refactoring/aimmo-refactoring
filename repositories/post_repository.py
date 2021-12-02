@@ -1,6 +1,5 @@
-from models import Post, Views
+from models import Post, Views, Comment, ReplyComment
 from schema import PostResponseSchema
-from dto import PostResponseDTO
 
 
 def create_post(post):
@@ -14,12 +13,14 @@ def read_post_list(page, category):
     return Post.objects.paginate(page=page, per_page=10)
 
 
-def read_post_detail(id):
+def read_post_detail(id, reply_comment_pagination):
     num_posts = Views.objects(post_id=id).count()
-    post = Post.objects.get_or_404(id=id)
-    post_response= PostResponseSchema()
+    post = Post.objects.fields(slice__comment__reply_comment=[reply_comment_pagination["offset"],
+                                                              reply_comment_pagination["offset"] + reply_comment_pagination["limit"]]).get_or_404(
+        id=id)
+    post_response = PostResponseSchema()
     post_response = post_response.load(post.to_mongo().to_dict())
-    post_response.views= num_posts
+    post_response.views = num_posts
     return post_response
 
 
@@ -41,3 +42,22 @@ def update_post(modify_post):
         post.update(**modify_post.__dict__)
         return True
     return False
+
+
+def create_child_comment(comment_dto):
+    post_id = comment_dto.post_id
+    OID = comment_dto.OID
+    del comment_dto.post_id
+    del comment_dto.OID
+    child_comment = ReplyComment(**comment_dto.__dict__)
+    Post.objects(id=post_id, comment__oid=OID).update(push__comment__S__reply_comment=child_comment)
+    return True
+
+
+def create_parent_comment(comment_dto):
+    del comment_dto.OID
+    comment = Comment(**comment_dto.__dict__)
+    post = Post.objects.get_or_404(id=comment_dto.post_id)
+    post.comment.append(comment)
+    post.save()
+    return post.to_json

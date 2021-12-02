@@ -7,9 +7,8 @@ from flask_apispec import use_kwargs, marshal_with
 from services import post_service
 from webargs.flaskparser import use_args
 from marshmallow import fields
-from schema import PostSchema, PostList, PostResponseSchema
-from dto import PostDTO
-
+from schema import PostSchema, PostList, PostResponseSchema, CommentSchema, ReplyCommentPaginationSchema
+from dto import PostDTO, CommentDTO
 
 bp = Blueprint('post', __name__, url_prefix='/posts')
 
@@ -30,10 +29,11 @@ def read_post_list():
 
 
 @bp.route('/<post_id>', methods=['GET'])
+@use_args(ReplyCommentPaginationSchema(), location="query")
 @marshal_with(PostResponseSchema)
-def read_detail(post_id):
+def read_detail(args, post_id):
     cookie_value, max_age = post_service.count_hit_post(post_id, request)
-    post = post_service.read_post_detail(post_id)
+    post = post_service.read_post_detail(post_id, args)
     response = make_response(post.__dict__)
     response.set_cookie('hitboard', value=cookie_value, max_age=max_age, httponly=True)
     return response
@@ -48,13 +48,21 @@ def delete_post(post_id):
 
 
 @bp.route('/<post_id>', methods=['PUT', 'PATCH'])
-@use_kwargs({"post_id": fields.Str()}, location="query")
 @use_args(PostSchema(partial=("author")))
-def update_post( modify_post: PostDTO, post_id):
+def update_post(modify_post: PostDTO, post_id):
     current_user_id = 1
     modify_post.author_id = current_user_id
     modify_post.id = post_id
-    print(modify_post.__dict__)
     if post_service.update_post(modify_post):
         return make_response(jsonify(msg='update_success', status_code=200, id=str(post_id)), 200)
     return make_response(jsonify(msg="권한이 없습니다. 해당 글을 쓰신 유저가 맞는지 확인해주세요", status_code=401), 401)
+
+
+@bp.route('/<post_id>/comment', methods=['POST'])
+@use_args(CommentSchema())
+def create_comment(comment_dto: CommentDTO, post_id):
+    user_id = 1
+    comment_dto.author_id = user_id
+    comment_dto.post_id = post_id
+    post_service.create_comment(comment_dto)
+    return make_response(jsonify(msg='create_comment_success', status_code=201, id=str(id)), 201)
