@@ -2,8 +2,8 @@ from models import Post, Views, Comment, ReplyComment
 from schema import PostResponseSchema
 
 
-def create_post(post):
-    post_save = Post(**post.__dict__).save()
+def create_post(post_dto):
+    post_save = Post(**post_dto.__dict__).save()
     return str(post_save.id)
 
 

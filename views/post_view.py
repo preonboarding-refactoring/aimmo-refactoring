@@ -6,7 +6,7 @@ from flask_apispec import use_kwargs, marshal_with
 from services import post_service
 from webargs.flaskparser import use_args
 from marshmallow import fields
-from schema import PostSchema, PostList, PostResponseSchema, CommentRequestSchema, ReplyCommentPaginationSchema, SearchSchema
+from schema import PostRequestSchema, PostList, PostResponseSchema, CommentRequestSchema, ReplyCommentPaginationSchema, SearchSchema
 from dto import PostDTO, CommentDTO, SearchDTO
 from flask_apispec import doc
 
@@ -14,10 +14,10 @@ bp = Blueprint('post', __name__, url_prefix='/posts')
 
 
 @bp.route('/create', methods=['POST'])
-@use_args(PostSchema(partial=("author")))
-def create_post(post: PostDTO):
-    post.author_id = 1
-    return post_service.create_post(post)
+@use_kwargs(PostRequestSchema())
+def create_post(post_dto: PostDTO):
+    post_dto.author_id = 1
+    return post_service.create_post(post_dto)
 
 
 @bp.route('/', methods=['GET'])
@@ -48,7 +48,7 @@ def delete_post(post_id):
 
 
 @bp.route('/<post_id>', methods=['PUT', 'PATCH'])
-@use_args(PostSchema(partial=("author")))
+@use_args(PostRequestSchema(partial=("author")))
 def update_post(modify_post: PostDTO, post_id):
     current_user_id = 1
     modify_post.author_id = current_user_id

@@ -2,6 +2,8 @@ import datetime
 
 
 class PostDTO:
+    author_id:int
+    created_at: datetime.datetime
     def __init__(self, title, content, category):
         self.title = title
         self.content = content

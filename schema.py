@@ -42,11 +42,10 @@ class Comment(Schema):
     oid = ObjectId()
 
 
-class PostSchema(Schema):
+class PostRequestSchema(Schema):
     title = fields.String()
     content = fields.String()
     category = fields.String()
-    author_id = fields.Integer()
 
     @post_load
     def make_post(self, data, **kwargs):
@@ -57,7 +56,7 @@ class PostList(Schema):
     page = fields.Integer()
     per_page = fields.Integer()
     total = fields.Integer()
-    items = fields.List(fields.Nested(PostSchema))
+    items = fields.List(fields.Nested(PostRequestSchema))
 
 
 class PostResponseSchema(Schema):
