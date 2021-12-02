@@ -15,9 +15,9 @@ def read_post_list(read_post_list_dto):
 
 def read_post_detail(id, reply_comment_pagination):
     num_posts = Views.objects(post_id=id).count()
-    post = Post.objects.fields(slice__comment__reply_comment=[reply_comment_pagination["offset"],
-                                                              reply_comment_pagination["offset"] +
-                                                              reply_comment_pagination["limit"]]).get_or_404(
+    post = Post.objects.fields(slice__comment__reply_comment=[reply_comment_pagination.offset,
+                                                              reply_comment_pagination.offset +
+                                                              reply_comment_pagination.limit]).get_or_404(
         id=id)
     post_response = PostResponseSchema()
     post_response = post_response.load(post.to_mongo().to_dict())

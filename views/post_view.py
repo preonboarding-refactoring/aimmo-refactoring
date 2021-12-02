@@ -7,7 +7,7 @@ from services import post_service
 from webargs.flaskparser import use_args
 from marshmallow import fields
 from schema import PostRequestSchema, PostList, PostResponseSchema, CommentRequestSchema, ReplyCommentPaginationSchema, SearchSchema, ReadPostListRequestSchema
-from dto import PostDTO, CommentDTO, SearchDTO, ReadPostListDto
+from dto import PostDTO, CommentDTO, SearchDTO, ReadPostListDto, ReplyCommentPaginationDTO
 from flask_apispec import doc
 
 bp = Blueprint('post', __name__, url_prefix='/posts')
@@ -30,11 +30,12 @@ def read_post_list(read_post_list_dto:ReadPostListDto):
 
 
 @bp.route('/<post_id>', methods=['GET'])
-@use_args(ReplyCommentPaginationSchema(), location="query")
+@doc(description='글 자세히 보기', tags=['post'])
+@use_kwargs(ReplyCommentPaginationSchema(), location="query")
 @marshal_with(PostResponseSchema)
-def read_detail(args, post_id):
+def read_detail(reply_comment_pagination_dto: ReplyCommentPaginationDTO, post_id):
     cookie_value, max_age = post_service.count_hit_post(post_id, request)
-    post = post_service.read_post_detail(post_id, args)
+    post = post_service.read_post_detail(post_id, reply_comment_pagination_dto)
     response = make_response(post.__dict__)
     response.set_cookie('hitboard', value=cookie_value, max_age=max_age, httponly=True)
     return response

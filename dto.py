@@ -41,3 +41,9 @@ class ReadPostListDto:
     def __init__(self, page, category):
         self.page = page
         self.category = category
+
+
+class ReplyCommentPaginationDTO:
+    def __init__(self, offset, limit):
+        self.page = offset
+        self.category = limit

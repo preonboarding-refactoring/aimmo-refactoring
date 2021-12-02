@@ -53,6 +53,7 @@ def create_app():
     docs.register(post_view.update_post, blueprint=post_view.bp.name)
     docs.register(post_view.delete_post, blueprint=post_view.bp.name)
     docs.register(post_view.read_post_list, blueprint=post_view.bp.name)
+    docs.register(post_view.read_detail, blueprint=post_view.bp.name)
 
     return app
 

@@ -89,6 +89,9 @@ class ReplyCommentPaginationSchema(Schema):
     offset = fields.Integer(missing=1)
     limit = fields.Integer(missing=3)
 
+    @post_load
+    def make_reply_comment_pagination(self, data, **kwargs):
+        return ReplyCommentPaginationDTO(**data)
 
 class SearchSchema(Schema):
     keyword = fields.String()
