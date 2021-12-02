@@ -2,6 +2,8 @@ import datetime
 
 
 class PostDTO:
+    author_id:int
+    created_at: datetime.datetime
     def __init__(self, title, content, category):
         self.title = title
         self.content = content
@@ -25,6 +27,23 @@ class CommentDTO:
     created_at: datetime.datetime
     author_id: int
     post_id: str
-    def __init__(self, content, OID):
+    def __init__(self, content, oid):
         self.content = content
-        self.OID = OID
+        self.oid = oid
+
+
+class SearchDTO:
+    def __init__(self, keyword, category):
+        self.keyword = keyword
+        self.category = category
+
+class ReadPostListDto:
+    def __init__(self, page, category):
+        self.page = page
+        self.category = category
+
+
+class ReplyCommentPaginationDTO:
+    def __init__(self, offset, limit):
+        self.page = offset
+        self.category = limit

@@ -1,13 +1,14 @@
 from repositories import post_repository
 from datetime import datetime,timedelta
+import re
 
-def create_post(post ):
-    post.created_at = datetime.now()
-    return post_repository.create_post(post)
+def create_post(post_dto ):
+    post_dto.created_at = datetime.now()
+    return post_repository.create_post(post_dto)
 
 
-def read_post_list(page, category):
-    return post_repository.read_post_list(page, category)
+def read_post_list(read_post_list_dto):
+    return post_repository.read_post_list(read_post_list_dto)
 
 
 def read_post_detail(id, reply_comment_pagination):
@@ -40,8 +41,11 @@ def update_post(modify_post):
 
 def create_comment(comment_dto):
     comment_dto.created_at = datetime.now()
-    if comment_dto.OID:
-        print(comment_dto.__dict__)
+    if comment_dto.oid:
         return post_repository.create_child_comment(comment_dto)
     return post_repository.create_parent_comment(comment_dto)
 
+
+def search_keyword(search_dto ):
+    search_dto.keyword = re.compile('.*' + search_dto.keyword + '.*')
+    return post_repository.search_post(search_dto)
