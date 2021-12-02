@@ -3,7 +3,7 @@ import bson
 from marshmallow import ValidationError, fields, missing, INCLUDE
 from datetime import datetime
 
-from dto import PostDTO, PostResponseDTO, CommentDTO, SearchDTO, ReadPostListDto
+from dto import (PostDTO, PostResponseDTO, CommentDTO, SearchDTO, ReadPostListDto, ReplyCommentPaginationDTO)
 
 
 class MyDateTimeField(fields.DateTime):
@@ -52,13 +52,6 @@ class PostRequestSchema(Schema):
         return PostDTO(**data)
 
 
-class PostList(Schema):
-    page = fields.Integer()
-    per_page = fields.Integer()
-    total = fields.Integer()
-    items = fields.List(fields.Nested(PostRequestSchema))
-
-
 class PostResponseSchema(Schema):
     title = fields.String()
     content = fields.String()
@@ -74,6 +67,13 @@ class PostResponseSchema(Schema):
 
     class Meta:
         unknown = INCLUDE
+
+
+class PostListResponseSchema(Schema):
+    page = fields.Integer()
+    per_page = fields.Integer()
+    total = fields.Integer()
+    items = fields.List(fields.Nested(PostResponseSchema))
 
 
 class CommentRequestSchema(Schema):
@@ -93,6 +93,7 @@ class ReplyCommentPaginationSchema(Schema):
     def make_reply_comment_pagination(self, data, **kwargs):
         return ReplyCommentPaginationDTO(**data)
 
+
 class SearchSchema(Schema):
     keyword = fields.String()
     category = fields.String(missing="")
@@ -101,6 +102,7 @@ class SearchSchema(Schema):
     def make_searchDTO(self, data, **kwargs):
         return SearchDTO(**data)
 
+
 class ReadPostListRequestSchema(Schema):
     page = fields.Integer(missing=1)
     category = fields.String(missing="")
@@ -108,3 +110,7 @@ class ReadPostListRequestSchema(Schema):
     @post_load
     def make_read_post_list_dto(self, data, **kwargs):
         return ReadPostListDto(**data)
+
+
+class BasicResponseSchema(Schema):
+    msg = fields.String(default="success")
