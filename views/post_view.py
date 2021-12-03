@@ -1,6 +1,4 @@
-from flask import Blueprint, make_response, jsonify
-from flask import request, jsonify
-from flask_jwt_extended.utils import get_jwt
+from flask import Blueprint, make_response, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_apispec import use_kwargs, marshal_with
 
