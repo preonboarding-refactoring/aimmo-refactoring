@@ -17,10 +17,11 @@ bp = Blueprint('post', __name__, url_prefix='/posts')
 
 @bp.route('', methods=['POST'])
 @doc(description='글 작성하기', tags=['post'])
+@jwt_required()
 @use_kwargs(PostRequestSchema())
 @marshal_with(BasicResponseSchema, code=201)
 def create_post(post_dto: PostDTO):
-    post_dto.author_id = 1
+    post_dto.author_id = get_jwt_identity()
     post_service.create_post(post_dto)
     return jsonify(msg='update_success')
 
@@ -47,20 +48,23 @@ def read_detail(reply_comment_pagination_dto: ReplyCommentPaginationDTO, post_id
 
 @bp.route('/<post_id>', methods=['DELETE'])
 @doc(description='글 삭제하기', tags=['post'])
-@marshal_with(None,code=204)
+@jwt_required()
+@marshal_with(None, code=204)
 def delete_post(post_id: str):
-    current_user_id = 1
+    current_user_id = get_jwt_identity()
     if post_service.delete_post_if_user_authorized(post_id, current_user_id):
         return make_response('', 204)
     else:
         raise InvalidUsage.no_authority()
 
+
 @bp.route('/<post_id>', methods=['PUT', 'PATCH'])
 @doc(description='글 수정하기', tags=['post'])
+@jwt_required()
 @use_kwargs(PostRequestSchema())
 @marshal_with(BasicResponseSchema, code=200)
 def update_post(post_dto: PostDTO, post_id: str):
-    current_user_id = 1
+    current_user_id = get_jwt_identity()
     post_dto.author_id = current_user_id
     post_dto.id = post_id
     if post_service.update_post(post_dto):
@@ -71,21 +75,22 @@ def update_post(post_dto: PostDTO, post_id: str):
 
 @bp.route('/<post_id>/comment', methods=['POST'])
 @doc(description='댓글달기', tags=['post'])
+@jwt_required()
 @use_kwargs(CommentRequestSchema())
 @marshal_with(BasicResponseSchema, 201)
 def create_comment(comment_dto: CommentDTO, post_id: str):
-    user_id = 1
+    user_id = get_jwt_identity()
     comment_dto.author_id = user_id
     comment_dto.post_id = post_id
     if post_service.create_comment(comment_dto):
         return jsonify(msg='create_comment_success')
     else:
-        raise  InvalidUsage.post_not_found()
+        raise InvalidUsage.post_not_found()
 
 
 @bp.route('/search', methods=['GET'])
 @doc(description='검색하기', tags=['post'])
 @use_kwargs(SearchSchema(), location="query")
-@marshal_with(PostResponseSchema( many=True), code=200)
+@marshal_with(PostResponseSchema(many=True), code=200)
 def search_post(search_dto: SearchDTO):
     return post_service.search_keyword(search_dto)
