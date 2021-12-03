@@ -3,6 +3,8 @@ from flask import request, jsonify
 from flask_jwt_extended.utils import get_jwt
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_apispec import use_kwargs, marshal_with
+
+from exceptions import InvalidUsage
 from services import post_service
 from schema import (PostRequestSchema, PostListResponseSchema, PostResponseSchema, CommentRequestSchema,
                     ReplyCommentPaginationSchema,
@@ -48,9 +50,10 @@ def read_detail(reply_comment_pagination_dto: ReplyCommentPaginationDTO, post_id
 @marshal_with(None,code=204)
 def delete_post(post_id: str):
     current_user_id = 1
-    post_service.delete_post_if_user_authorized(post_id, current_user_id)
-    return make_response('', 204)
-
+    if post_service.delete_post_if_user_authorized(post_id, current_user_id):
+        return make_response('', 204)
+    else:
+        raise InvalidUsage.no_authority()
 
 @bp.route('/<post_id>', methods=['PUT', 'PATCH'])
 @doc(description='글 수정하기', tags=['post'])
@@ -60,8 +63,10 @@ def update_post(post_dto: PostDTO, post_id: str):
     current_user_id = 1
     post_dto.author_id = current_user_id
     post_dto.id = post_id
-    post_service.update_post(post_dto)
-    return jsonify(msg='update_success'), 200
+    if post_service.update_post(post_dto):
+        return jsonify(msg='update_success'), 200
+    else:
+        raise InvalidUsage.no_authority()
 
 
 @bp.route('/<post_id>/comment', methods=['POST'])
@@ -72,8 +77,10 @@ def create_comment(comment_dto: CommentDTO, post_id: str):
     user_id = 1
     comment_dto.author_id = user_id
     comment_dto.post_id = post_id
-    post_service.create_comment(comment_dto)
-    return jsonify(msg='create_comment_success')
+    if post_service.create_comment(comment_dto):
+        return jsonify(msg='create_comment_success')
+    else:
+        raise  InvalidUsage.post_not_found()
 
 
 @bp.route('/search', methods=['GET'])

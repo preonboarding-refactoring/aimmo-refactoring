@@ -1,5 +1,6 @@
 from models import Post, Views, Comment, ReplyComment
 from schema import PostResponseSchema
+from sqlalchemy.exc import IntegrityError
 
 
 def create_post(post_dto):
@@ -51,8 +52,11 @@ def create_child_comment(comment_dto):
     del comment_dto.post_id
     del comment_dto.oid
     child_comment = ReplyComment(**comment_dto.__dict__)
-    Post.objects(id=post_id, comment__oid=oid).update(push__comment__S__reply_comment=child_comment)
-    return True
+    try:
+        Post.objects(id=post_id, comment__oid=oid).update(push__comment__S__reply_comment=child_comment)
+        return True
+    except:
+        return False
 
 
 def create_parent_comment(comment_dto):
